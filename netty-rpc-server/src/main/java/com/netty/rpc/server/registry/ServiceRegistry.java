@@ -20,19 +20,31 @@ import java.util.Map;
  *
  * @author luxiaoxun
  */
-public class ServiceRegistry {
+public class  ServiceRegistry {
     private static final Logger logger = LoggerFactory.getLogger(ServiceRegistry.class);
 
     private CuratorClient curatorClient;
+//    在内存中保存一些服务信息
     private List<String> pathList = new ArrayList<>();
 
+    /**
+     *
+     * @param registryAddress zookeeper 的 地址:端口
+     */
     public ServiceRegistry(String registryAddress) {
         this.curatorClient = new CuratorClient(registryAddress, 5000);
     }
 
+    /**
+     * 向 zookeeper 注册服务
+     * @param host 服务器ip
+     * @param port 服务器端口
+     * @param serviceMap 存储要注册的服务的 Map集合
+     */
     public void registerService(String host, int port, Map<String, Object> serviceMap) {
         // Register service info
         List<RpcServiceInfo> serviceInfoList = new ArrayList<>();
+
         for (String key : serviceMap.keySet()) {
             String[] serviceInfo = key.split(ServiceUtil.SERVICE_CONCAT_TOKEN);
             if (serviceInfo.length > 0) {
@@ -56,7 +68,9 @@ public class ServiceRegistry {
             rpcProtocol.setServiceInfoList(serviceInfoList);
             String serviceData = rpcProtocol.toJson();
             byte[] bytes = serviceData.getBytes();
+//           构造 zookeeper 的路径
             String path = Constant.ZK_DATA_PATH + "-" + rpcProtocol.hashCode();
+//            向zookeeper注册服务 ？
             path = this.curatorClient.createPathData(path, bytes);
             pathList.add(path);
             logger.info("Register {} new service, host: {}, port: {}", serviceInfoList.size(), host, port);
@@ -67,6 +81,7 @@ public class ServiceRegistry {
         curatorClient.addConnectionStateListener(new ConnectionStateListener() {
             @Override
             public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
+//                重连就重新注册服务
                 if (connectionState == ConnectionState.RECONNECTED) {
                     logger.info("Connection state: {}, register service after reconnected", connectionState);
                     registerService(host, port, serviceMap);

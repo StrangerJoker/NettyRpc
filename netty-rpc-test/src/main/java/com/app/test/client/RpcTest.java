@@ -1,7 +1,9 @@
 package com.app.test.client;
 
-import com.netty.rpc.client.RpcClient;
+import com.app.test.service.Foo;
 import com.app.test.service.HelloService;
+import com.app.test.service.Person;
+import com.netty.rpc.client.RpcClient;
 
 /**
  * Created by luxiaoxun on 2016-03-11.
@@ -9,7 +11,7 @@ import com.app.test.service.HelloService;
 public class RpcTest {
 
     public static void main(String[] args) throws InterruptedException {
-        final RpcClient rpcClient = new RpcClient("10.217.59.164:2181");
+        final RpcClient rpcClient = new RpcClient("192.168.16.133:2181");
 
         int threadNum = 1;
         final int requestNum = 50;
@@ -23,8 +25,10 @@ public class RpcTest {
                 public void run() {
                     for (int i = 0; i < requestNum; i++) {
                         try {
+                            // 通过代理对象发送和接受数据
                             final HelloService syncClient = rpcClient.createService(HelloService.class, "1.0");
-                            String result = syncClient.hello(Integer.toString(i));
+//                            String result = syncClient.hello(Integer.toString(i));
+                            String result = syncClient.hello(new Person("kobe", "bryant"));
                             if (!result.equals("Hello " + i)) {
                                 System.out.println("error = " + result);
                             } else {

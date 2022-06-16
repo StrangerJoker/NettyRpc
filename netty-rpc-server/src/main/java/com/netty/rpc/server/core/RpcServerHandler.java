@@ -40,7 +40,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
             logger.info("Server read heartbeat ping");
             return;
         }
-
+        // 线程池处理请求
         serverHandlerPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -51,9 +51,10 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
                     Object result = handle(request);
                     response.setResult(result);
                 } catch (Throwable t) {
-                    response.setError(t.toString());
-                    logger.error("RPC Server handle request error", t);
+                    response.setError(t.getMessage());
+                    logger.error("RPC Server handle request error: {}", t.getMessage());
                 }
+                // 向Client发送处理结果
                 ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture channelFuture) throws Exception {
@@ -64,6 +65,12 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
         });
     }
 
+    /**
+     * 处理 RpcRequest
+     * @param request
+     * @return
+     * @throws Throwable
+     */
     private Object handle(RpcRequest request) throws Throwable {
         String className = request.getClassName();
         String version = request.getVersion();

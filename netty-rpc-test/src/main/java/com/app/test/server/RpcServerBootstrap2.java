@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 public class RpcServerBootstrap2 {
     private static final Logger logger = LoggerFactory.getLogger(RpcServerBootstrap2.class);
-
+// 手动创建一个RpcServer
     public static void main(String[] args) {
         String serverAddress = "127.0.0.1:18877";
         String registryAddress = "10.217.59.164:2181";

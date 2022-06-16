@@ -20,7 +20,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     private static final Logger logger = LoggerFactory.getLogger(RpcClientHandler.class);
 
-    private ConcurrentHashMap<String, RpcFuture> pendingRPC = new ConcurrentHashMap<>();
+    // 存储 seqId -> RPC的结果，用Future来存储。但是无法存储异常情况
+    private final ConcurrentHashMap<String, RpcFuture> pendingRPC = new ConcurrentHashMap<>();
+    //    单例的channel对象
     private volatile Channel channel;
     private SocketAddress remotePeer;
     private RpcProtocol rpcProtocol;
@@ -37,6 +39,12 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         this.channel = ctx.channel();
     }
 
+    /**
+     * 读取到数据，将读取的数据保存到 pendingRPC 中，通过 序列号 查找到对应的 RpcFuture
+     * @param ctx
+     * @param response RpcResponse
+     * @throws Exception
+     */
     @Override
     public void channelRead0(ChannelHandlerContext ctx, RpcResponse response) throws Exception {
         String requestId = response.getRequestId();
@@ -60,10 +68,16 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     }
 
+    /**
+     * 向RPC服务器发送调用请求，直到返回结果
+     * @param request
+     * @return
+     */
     public RpcFuture sendRequest(RpcRequest request) {
         RpcFuture rpcFuture = new RpcFuture(request);
         pendingRPC.put(request.getRequestId(), rpcFuture);
         try {
+//            发送后 等待服务端 返回结果（在channelRead0方法里面设置 RpcFuture 存储的值） 才向下执行
             ChannelFuture channelFuture = channel.writeAndFlush(request).sync();
             if (!channelFuture.isSuccess()) {
                 logger.error("Send request {} error", request.getRequestId());
@@ -90,6 +104,11 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         this.rpcProtocol = rpcProtocol;
     }
 
+    /**
+     * 连接断开
+     * @param ctx
+     * @throws Exception
+     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);

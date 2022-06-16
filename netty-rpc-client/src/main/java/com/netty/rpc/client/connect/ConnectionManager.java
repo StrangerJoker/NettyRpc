@@ -17,7 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -29,21 +31,22 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ConnectionManager {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionManager.class);
 
-    private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(4, 8,
+    private final EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+    private static final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(4, 8,
             600L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1000));
-
-    private Map<RpcProtocol, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
-    private CopyOnWriteArraySet<RpcProtocol> rpcProtocolSet = new CopyOnWriteArraySet<>();
-    private ReentrantLock lock = new ReentrantLock();
-    private Condition connected = lock.newCondition();
+//    每个 连接的远程服务器 对应的 响应处理器
+    private final Map<RpcProtocol, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
+//    服务器集合 RpcProtocol 中保存着服务器及可以调用的API
+    private final CopyOnWriteArraySet<RpcProtocol> rpcProtocolSet = new CopyOnWriteArraySet<>();
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Condition connected = lock.newCondition();
     private long waitTimeout = 5000;
-    private RpcLoadBalance loadBalance = new RpcLoadBalanceRoundRobin();
+    private final RpcLoadBalance loadBalance = new RpcLoadBalanceRoundRobin();
     private volatile boolean isRunning = true;
 
     private ConnectionManager() {
     }
-
+    // 单例
     private static class SingletonHolder {
         private static final ConnectionManager instance = new ConnectionManager();
     }
@@ -52,6 +55,10 @@ public class ConnectionManager {
         return SingletonHolder.instance;
     }
 
+    /**
+     * 更新远程服务器节点
+     * @param serviceList 有效的远程服务器
+     */
     public void updateConnectedServer(List<RpcProtocol> serviceList) {
         // Now using 2 collections to manage the service info and TCP connections because making the connection is async
         // Once service info is updated on ZK, will trigger this function
@@ -59,10 +66,7 @@ public class ConnectionManager {
         if (serviceList != null && serviceList.size() > 0) {
             // Update local server nodes cache
             HashSet<RpcProtocol> serviceSet = new HashSet<>(serviceList.size());
-            for (int i = 0; i < serviceList.size(); ++i) {
-                RpcProtocol rpcProtocol = serviceList.get(i);
-                serviceSet.add(rpcProtocol);
-            }
+            serviceSet.addAll(serviceList);
 
             // Add new server info
             for (final RpcProtocol rpcProtocol : serviceSet) {
@@ -126,6 +130,8 @@ public class ConnectionManager {
 
                 ChannelFuture channelFuture = b.connect(remotePeer);
                 channelFuture.addListener(new ChannelFutureListener() {
+//                    If this future is already completed, the specified listener is notified immediately
+//                    回调函数，建立连接后就将 rpcProtocol 和 ChannelHandler 记录下来
                     @Override
                     public void operationComplete(final ChannelFuture channelFuture) throws Exception {
                         if (channelFuture.isSuccess()) {

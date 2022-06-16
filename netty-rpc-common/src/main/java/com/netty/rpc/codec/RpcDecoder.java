@@ -16,8 +16,8 @@ import java.util.List;
  */
 public class RpcDecoder extends ByteToMessageDecoder {
     private static final Logger logger = LoggerFactory.getLogger(RpcDecoder.class);
-    private Class<?> genericClass;
-    private Serializer serializer;
+    private final Class<?> genericClass;
+    private final Serializer serializer;
 
     public RpcDecoder(Class<?> genericClass, Serializer serializer) {
         this.genericClass = genericClass;

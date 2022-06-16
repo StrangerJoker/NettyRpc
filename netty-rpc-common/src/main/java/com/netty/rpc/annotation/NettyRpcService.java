@@ -16,7 +16,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Component
 public @interface NettyRpcService {
+//    接口
     Class<?> value();
-
+//    区分接口的实现类
     String version() default "";
 }

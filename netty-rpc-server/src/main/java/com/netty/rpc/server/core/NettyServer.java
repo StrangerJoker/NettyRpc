@@ -20,15 +20,24 @@ public class NettyServer extends Server {
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
     private Thread thread;
-    private String serverAddress;
-    private ServiceRegistry serviceRegistry;
-    private Map<String, Object> serviceMap = new HashMap<>();
+//    服务器地址
+    private final String serverAddress;
+    // 服务注册
+    private final ServiceRegistry serviceRegistry;
+    // 服务key -> 服务值
+    private final Map<String, Object> serviceMap = new HashMap<>();
 
     public NettyServer(String serverAddress, String registryAddress) {
         this.serverAddress = serverAddress;
         this.serviceRegistry = new ServiceRegistry(registryAddress);
     }
 
+    /**
+     * 添加服务
+     * @param interfaceName
+     * @param version
+     * @param serviceBean
+     */
     public void addService(String interfaceName, String version, Object serviceBean) {
         logger.info("Adding service, interface: {}, version: {}, bean：{}", interfaceName, version, serviceBean);
         String serviceKey = ServiceUtil.makeServiceKey(interfaceName, version);
@@ -37,7 +46,7 @@ public class NettyServer extends Server {
 
     public void start() {
         thread = new Thread(new Runnable() {
-            ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtil.makeServerThreadPool(
+            final ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtil.makeServerThreadPool(
                     NettyServer.class.getSimpleName(), 16, 32);
 
             @Override
@@ -46,16 +55,17 @@ public class NettyServer extends Server {
                 EventLoopGroup workerGroup = new NioEventLoopGroup();
                 try {
                     ServerBootstrap bootstrap = new ServerBootstrap();
-                    bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
+                    bootstrap.group(bossGroup, workerGroup)
+                            .channel(NioServerSocketChannel.class)
                             .childHandler(new RpcServerInitializer(serviceMap, threadPoolExecutor))
                             .option(ChannelOption.SO_BACKLOG, 128)
                             .childOption(ChannelOption.SO_KEEPALIVE, true);
-
+                    // 绑定服务器 ip 端口
                     String[] array = serverAddress.split(":");
                     String host = array[0];
                     int port = Integer.parseInt(array[1]);
                     ChannelFuture future = bootstrap.bind(host, port).sync();
-
+                    //
                     if (serviceRegistry != null) {
                         serviceRegistry.registerService(host, port, serviceMap);
                     }
@@ -69,6 +79,7 @@ public class NettyServer extends Server {
                     }
                 } finally {
                     try {
+                        assert serviceRegistry != null;
                         serviceRegistry.unregisterService();
                         workerGroup.shutdownGracefully();
                         bossGroup.shutdownGracefully();

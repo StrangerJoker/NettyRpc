@@ -27,14 +27,15 @@ import java.util.concurrent.TimeUnit;
 public class RpcClient implements ApplicationContextAware, DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(RpcClient.class);
 
-    private ServiceDiscovery serviceDiscovery;
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(16, 16,
+    private final ServiceDiscovery serviceDiscovery;
+    private static final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(16, 16,
             600L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1000));
 
     public RpcClient(String address) {
         this.serviceDiscovery = new ServiceDiscovery(address);
     }
 
+    // 创建代理对象，来执行RPC调用
     @SuppressWarnings("unchecked")
     public static <T, P> T createService(Class<T> interfaceClass, String version) {
         return (T) Proxy.newProxyInstance(
@@ -44,6 +45,8 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
         );
     }
 
+
+    // 获取一个 RpcService 对象
     public static <T, P> RpcService createAsyncService(Class<T> interfaceClass, String version) {
         return new ObjectProxy<T, P>(interfaceClass, version);
     }
@@ -63,6 +66,7 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
         this.stop();
     }
 
+    // 将 @RpcAutowired 注解的类对象的IOC容器的Bean 替换为 代理对象的Bean
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         String[] beanNames = applicationContext.getBeanDefinitionNames();
@@ -71,10 +75,13 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
             Field[] fields = bean.getClass().getDeclaredFields();
             try {
                 for (Field field : fields) {
+//                    实现自己定义的依赖注入
                     RpcAutowired rpcAutowired = field.getAnnotation(RpcAutowired.class);
                     if (rpcAutowired != null) {
                         String version = rpcAutowired.version();
+//                        设置为 public
                         field.setAccessible(true);
+//                        bean - oldVal, 将原来的Bean 修改为 为代理对象
                         field.set(bean, createService(field.getType(), version));
                     }
                 }

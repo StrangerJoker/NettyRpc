@@ -15,11 +15,12 @@ public class RpcProtocol implements Serializable {
     // service info list
     private List<RpcServiceInfo> serviceInfoList;
 
+    // 序列化
     public String toJson() {
-        String json = JsonUtil.objectToJson(this);
-        return json;
+        return JsonUtil.objectToJson(this);
     }
 
+    // 反序列化
     public static RpcProtocol fromJson(String json) {
         return JsonUtil.jsonToObject(json, RpcProtocol.class);
     }

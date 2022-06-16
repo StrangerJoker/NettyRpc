@@ -14,6 +14,7 @@ import java.util.Map;
  * Created by luxiaoxun on 2020-08-01.
  */
 public abstract class RpcLoadBalance {
+
     // Service map: group by service name
     protected Map<String, List<RpcProtocol>> getServiceMap(Map<RpcProtocol, RpcClientHandler> connectedServerNodes) {
         Map<String, List<RpcProtocol>> serviceMap = new HashedMap<>();

@@ -16,13 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 服务发现
+ * 服务发现:从zookeeper中查询服务
  *
  * @author luxiaoxun
  */
 public class ServiceDiscovery {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDiscovery.class);
-    private CuratorClient curatorClient;
+    private final CuratorClient curatorClient;
 
     public ServiceDiscovery(String registryAddress) {
         this.curatorClient = new CuratorClient(registryAddress);
@@ -85,7 +85,7 @@ public class ServiceDiscovery {
         String path = childData.getPath();
         String data = new String(childData.getData(), StandardCharsets.UTF_8);
         logger.info("Child data updated, path:{},type:{},data:{},", path, type, data);
-        RpcProtocol rpcProtocol =  RpcProtocol.fromJson(data);
+        RpcProtocol rpcProtocol = RpcProtocol.fromJson(data);
         updateConnectedServer(rpcProtocol, type);
     }
 

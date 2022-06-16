@@ -15,5 +15,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Component
 public @interface RpcAutowired {
+//    注解的时候区分实现类
     String version() default "";
 }
