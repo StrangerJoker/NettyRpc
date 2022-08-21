@@ -21,28 +21,25 @@ public class RpcAsyncTest {
         long startTime = System.currentTimeMillis();
         //benchmark for async call
         for (int i = 0; i < threadNum; ++i) {
-            threads[i] = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int i = 0; i < requestNum; i++) {
-                        try {
-                            RpcService client = rpcClient.createAsyncService(HelloService.class, "2.0");
-                            RpcFuture helloFuture = client.call("hello", Integer.toString(i));
-                            String result = (String) helloFuture.get(3000, TimeUnit.MILLISECONDS);
-                            if (!result.equals("Hi " + i)) {
-                                System.out.println("error = " + result);
-                            } else {
-                                System.out.println("result = " + result);
-                            }
-
-                            try {
-                                Thread.sleep(5 * 1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        } catch (Exception e) {
-                            System.out.println(e.toString());
+            threads[i] = new Thread(() -> {
+                for (int j = 0; j < requestNum; j++) {
+                    try {
+                        RpcService client = rpcClient.createAsyncService(HelloService.class, "2.0");
+                        RpcFuture helloFuture = client.call("hello", Integer.toString(j));
+                        String result = (String) helloFuture.get(3000, TimeUnit.MILLISECONDS);
+                        if (!result.equals("Hi " + j)) {
+                            System.out.println("error = " + result);
+                        } else {
+                            System.out.println("result = " + result);
                         }
+
+                        try {
+                            Thread.sleep(5 * 1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } catch (Exception e) {
+                        System.out.println(e.toString());
                     }
                 }
             });
