@@ -6,6 +6,10 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 主机：端口上 服务的所有RPC接口服务
+ * RPC接口服务包括 interface 和 版本号
+ */
 public class RpcProtocol implements Serializable {
     private static final long serialVersionUID = -1102180003395190700L;
     // service host

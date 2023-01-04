@@ -55,6 +55,9 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
         threadPoolExecutor.submit(task);
     }
 
+    /**
+     * 关闭资源：线程池，zk连接
+     */
     public void stop() {
         threadPoolExecutor.shutdown();
         serviceDiscovery.stop();

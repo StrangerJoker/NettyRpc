@@ -24,7 +24,7 @@ public class NettyServer extends Server {
     private final String serverAddress;
     // 服务注册
     private final ServiceRegistry serviceRegistry;
-    // 服务key -> 服务值
+    // 服务key -> 服务Bean
     private final Map<String, Object> serviceMap = new HashMap<>();
 
     public NettyServer(String serverAddress, String registryAddress) {
@@ -33,7 +33,7 @@ public class NettyServer extends Server {
     }
 
     /**
-     * 添加服务
+     * 添加服务：需要在spring容器启动的时候，将NettyRpcService注解注释的bean添加到服务中
      * @param interfaceName
      * @param version
      * @param serviceBean
@@ -65,7 +65,7 @@ public class NettyServer extends Server {
                     String host = array[0];
                     int port = Integer.parseInt(array[1]);
                     ChannelFuture future = bootstrap.bind(host, port).sync();
-                    //
+                    // 向zk注册服务
                     if (serviceRegistry != null) {
                         serviceRegistry.registerService(host, port, serviceMap);
                     }

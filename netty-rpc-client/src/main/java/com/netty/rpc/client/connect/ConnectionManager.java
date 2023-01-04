@@ -168,6 +168,12 @@ public class ConnectionManager {
         }
     }
 
+    /**
+     *
+     * @param serviceKey 根据 interface 和 version 生成的 serviceKey
+     * @return RpcClientHandler
+     * @throws Exception e
+     */
     public RpcClientHandler chooseHandler(String serviceKey) throws Exception {
         int size = connectedServerNodes.values().size();
         while (isRunning && size <= 0) {
@@ -178,6 +184,7 @@ public class ConnectionManager {
                 logger.error("Waiting for available service is interrupted!", e);
             }
         }
+        // 负载均衡 选接口服务所在的主机（RpcProtocol），根据不同的策略
         RpcProtocol rpcProtocol = loadBalance.route(serviceKey, connectedServerNodes);
         RpcClientHandler handler = connectedServerNodes.get(rpcProtocol);
         if (handler != null) {

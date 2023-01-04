@@ -41,6 +41,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
     /**
      * 读取到数据，将读取的数据保存到 pendingRPC 中，通过 序列号 查找到对应的 RpcFuture
+     *
      * @param ctx
      * @param response RpcResponse
      * @throws Exception
@@ -70,6 +71,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
     /**
      * 向RPC服务器发送调用请求，直到返回结果
+     * 阻塞
      * @param request
      * @return
      */
@@ -89,6 +91,13 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         return rpcFuture;
     }
 
+    /**
+     * 心跳检测？
+     *
+     * @param ctx
+     * @param evt
+     * @throws Exception
+     */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {

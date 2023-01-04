@@ -41,27 +41,25 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
             return;
         }
         // 线程池处理请求
-        serverHandlerPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                logger.info("Receive request " + request.getRequestId());
-                RpcResponse response = new RpcResponse();
-                response.setRequestId(request.getRequestId());
-                try {
-                    Object result = handle(request);
-                    response.setResult(result);
-                } catch (Throwable t) {
-                    response.setError(t.getMessage());
-                    logger.error("RPC Server handle request error: {}", t.getMessage());
-                }
-                // 向Client发送处理结果
-                ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                        logger.info("Send response for request " + request.getRequestId());
-                    }
-                });
+        serverHandlerPool.execute(() -> {
+            logger.info("Receive request " + request.getRequestId());
+            RpcResponse response = new RpcResponse();
+            response.setRequestId(request.getRequestId());
+            try {
+                // 服务端使用 处理 RpcRequest
+                Object result = handle(request);
+                response.setResult(result);
+            } catch (Throwable t) {
+                response.setError(t.getMessage());
+                logger.error("RPC Server handle request error: {}", t.getMessage());
             }
+            // 向Client发送处理结果
+            ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    logger.info("Send response for request " + request.getRequestId());
+                }
+            });
         });
     }
 

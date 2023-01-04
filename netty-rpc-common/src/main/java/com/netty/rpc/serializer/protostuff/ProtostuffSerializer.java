@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ProtostuffSerializer extends Serializer {
+    /**
+     * 这个字段表示缓存的Schema。那这个Schema是什么呢？就是一个组织结构，就好比是数据库中的表、视图等等这样的组织机构，在这里表示的就是序列化对象的结构。
+     */
     private Map<Class<?>, Schema<?>> cachedSchema = new ConcurrentHashMap<>();
 
     private Objenesis objenesis = new ObjenesisStd(true);
@@ -25,6 +28,9 @@ public class ProtostuffSerializer extends Serializer {
     @Override
     public <T> byte[] serialize(T obj) {
         Class<T> cls = (Class<T>) obj.getClass();
+        /*
+        这个字段表示，申请一个内存空间用户缓存，LinkedBuffer.DEFAULT_BUFFER_SIZE表示申请了默认大小的空间512个字节，我们也可以使用MIN_BUFFER_SIZE，表示256个字节。
+         */
         LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
         try {
             Schema<T> schema = getSchema(cls);
