@@ -10,9 +10,11 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * LFU load balance
+ * 路由策略：每次选择使用次数最少的服务主机
  * Created by luxiaoxun on 2020-08-01.
  */
 public class RpcLoadBalanceLFU extends RpcLoadBalance {
+    // 记录每个主机的使用次数
     private ConcurrentMap<String, HashMap<RpcProtocol, Integer>> jobLfuMap = new ConcurrentHashMap<String, HashMap<RpcProtocol, Integer>>();
     private long CACHE_VALID_TIME = 0;
 

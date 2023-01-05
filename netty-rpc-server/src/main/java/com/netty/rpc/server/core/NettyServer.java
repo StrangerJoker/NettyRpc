@@ -20,7 +20,7 @@ public class NettyServer extends Server {
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
     private Thread thread;
-//    服务器地址
+    //    服务器地址
     private final String serverAddress;
     // 服务注册
     private final ServiceRegistry serviceRegistry;
@@ -34,6 +34,7 @@ public class NettyServer extends Server {
 
     /**
      * 添加服务：需要在spring容器启动的时候，将NettyRpcService注解注释的bean添加到服务中
+     *
      * @param interfaceName
      * @param version
      * @param serviceBean
@@ -58,7 +59,11 @@ public class NettyServer extends Server {
                     bootstrap.group(bossGroup, workerGroup)
                             .channel(NioServerSocketChannel.class)
                             .childHandler(new RpcServerInitializer(serviceMap, threadPoolExecutor))
+//                    服务端可连接队列数,对应TCP/IP协议listen函数中backlog参数
                             .option(ChannelOption.SO_BACKLOG, 128)
+//                            将小的数据包包装成更大的帧进行传送，提高网络的负载
+//                            .option(ChannelOption.TCP_NODELAY, true)
+//                            TCP长连接设置
                             .childOption(ChannelOption.SO_KEEPALIVE, true);
                     // 绑定服务器 ip 端口
                     String[] array = serverAddress.split(":");

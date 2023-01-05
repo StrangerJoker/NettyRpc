@@ -10,9 +10,11 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * LRU load balance
+ * 选择最近最久未使用的主机
  * Created by luxiaoxun on 2020-08-01.
  */
 public class RpcLoadBalanceLRU extends RpcLoadBalance {
+    // LinkedHashMap 可以用来记录 将最近访问的元素 排在第一
     private ConcurrentMap<String, LinkedHashMap<RpcProtocol, RpcProtocol>> jobLRUMap =
             new ConcurrentHashMap<String, LinkedHashMap<RpcProtocol, RpcProtocol>>();
     private long CACHE_VALID_TIME = 0;

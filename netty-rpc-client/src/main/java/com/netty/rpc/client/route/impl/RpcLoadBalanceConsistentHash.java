@@ -8,6 +8,11 @@ import com.netty.rpc.protocol.RpcProtocol;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 一致性hash
+ *
+ * https://zhuanlan.zhihu.com/p/129049724
+ */
 public class RpcLoadBalanceConsistentHash extends RpcLoadBalance {
 
     public RpcProtocol doRoute(String serviceKey, List<RpcProtocol> addressList) {

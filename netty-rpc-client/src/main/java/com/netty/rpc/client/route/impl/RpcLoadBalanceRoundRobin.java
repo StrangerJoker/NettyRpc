@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Round robin load balance
+ * Round robin load balance:轮训
  * Created by luxiaoxun on 2020-08-01.
  */
 public class RpcLoadBalanceRoundRobin extends RpcLoadBalance {
