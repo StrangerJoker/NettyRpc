@@ -15,7 +15,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class RpcCallbackTest {
     public static void main(String[] args) {
-        final RpcClient rpcClient = new RpcClient("192.168.16.133:2181");
+        final RpcClient rpcClient = new RpcClient("192.168.102.128:2181");
         final CountDownLatch countDownLatch = new CountDownLatch(1);
 
         try {
@@ -23,6 +23,10 @@ public class RpcCallbackTest {
             int num = 5;
             RpcFuture helloPersonFuture = client.call("callPerson", "Jerry", num);
             helloPersonFuture.addCallback(new AsyncRPCCallback() {
+                /**
+                 * 正常情况，拿到返回结果
+                 * @param result
+                 */
                 @Override
                 public void success(Object result) {
                     List<Person> persons = (List<Person>) result;
@@ -32,9 +36,13 @@ public class RpcCallbackTest {
                     countDownLatch.countDown();
                 }
 
+                /**
+                 * 异常情况，打印异常日志
+                 * @param e
+                 */
                 @Override
                 public void fail(Exception e) {
-                    System.out.println(e);
+                    e.printStackTrace();
                     countDownLatch.countDown();
                 }
             });

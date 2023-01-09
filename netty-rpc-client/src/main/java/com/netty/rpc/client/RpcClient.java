@@ -69,12 +69,13 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
         this.stop();
     }
 
+    // spring容器启动的时候会调用这个方法
     // 将 @RpcAutowired 注解的类对象的IOC容器的Bean 替换为 代理对象的Bean
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        String[] beanNames = applicationContext.getBeanDefinitionNames();
+    public void setApplicationContext(ApplicationContext ctx) throws BeansException {
+        String[] beanNames = ctx.getBeanDefinitionNames();
         for (String beanName : beanNames) {
-            Object bean = applicationContext.getBean(beanName);
+            Object bean = ctx.getBean(beanName);
             Field[] fields = bean.getClass().getDeclaredFields();
             try {
                 for (Field field : fields) {

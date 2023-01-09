@@ -34,6 +34,10 @@ public class RpcFuture implements Future<Object> {
         this.startTime = System.currentTimeMillis();
     }
 
+    /**
+     * 在执行回调函数的时候 判断执行future的任务是否完成
+     * @return
+     */
     @Override
     public boolean isDone() {
         return sync.isDone();
@@ -75,14 +79,18 @@ public class RpcFuture implements Future<Object> {
         throw new UnsupportedOperationException();
     }
 
-    public void done(RpcResponse reponse) {
-        this.response = reponse;
+    /**
+     * 将RpcResponse的结果写入到 RPCFuture 里面，并执行回调函数
+     * @param response
+     */
+    public void done(RpcResponse response) {
+        this.response = response;
         sync.release(1);
         invokeCallbacks();
         // Threshold
         long responseTime = System.currentTimeMillis() - startTime;
         if (responseTime > this.responseTimeThreshold) {
-            logger.warn("Service response time is too slow. Request id = " + reponse.getRequestId() + ". Response Time = " + responseTime + "ms");
+            logger.warn("Service response time is too slow. Request id = " + response.getRequestId() + ". Response Time = " + responseTime + "ms");
         }
     }
 
@@ -129,12 +137,12 @@ public class RpcFuture implements Future<Object> {
         private static final long serialVersionUID = 1L;
 
         //future status
-        private final int done = 1;
-        private final int pending = 0;
+        private final int done = 1;       // 表示Future已经是可以用的状态，使用get获取结果
+        private final int pending = 0;    // 表示Future是不可用的状态，等待state=1
 
         @Override
         protected boolean tryAcquire(int arg) {
-            return getState() == done;
+            return getState() == done; // state=0才能拿到锁
         }
 
         @Override
@@ -150,6 +158,10 @@ public class RpcFuture implements Future<Object> {
             }
         }
 
+        /**
+         * Returns {@code true} if this task completed.
+         * @return
+         */
         protected boolean isDone() {
             return getState() == done;
         }

@@ -5,6 +5,9 @@ import com.netty.rpc.util.JsonUtil;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * RPC调用的接口信息
+ */
 public class RpcServiceInfo implements Serializable {
     // interface name
     private String serviceName;

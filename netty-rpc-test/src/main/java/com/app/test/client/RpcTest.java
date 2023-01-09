@@ -11,7 +11,7 @@ import com.netty.rpc.client.RpcClient;
 public class RpcTest {
 
     public static void main(String[] args) throws InterruptedException {
-        final RpcClient rpcClient = new RpcClient("192.168.16.133:2181");
+        final RpcClient rpcClient = new RpcClient("192.168.102.128:2181");
 
         int threadNum = 1;
         final int requestNum = 50;
