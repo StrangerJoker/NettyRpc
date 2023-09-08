@@ -27,7 +27,7 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
     }
 
     /**
-     * 代理对象执行的方法：发送/接受 数据
+     * 代理对象执行的方法：发送 数据
      *
      * @param proxy
      * @param method

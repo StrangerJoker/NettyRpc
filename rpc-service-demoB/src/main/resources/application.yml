@@ -1,0 +1,7 @@
+registry:
+  address: 192.168.102.134:2181
+bind:
+  port: 18886
+server:
+  port: 5001
+  address: localhost

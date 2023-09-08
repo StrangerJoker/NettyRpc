@@ -2,6 +2,8 @@ package com.netty.rpc.server;
 
 import com.netty.rpc.annotation.NettyRpcService;
 import com.netty.rpc.server.core.NettyServer;
+import jdk.nashorn.internal.ir.IfNode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
@@ -16,6 +18,7 @@ import java.util.Map;
  *
  * @author luxiaoxun
  */
+@Slf4j
 public class RpcServer extends NettyServer implements ApplicationContextAware, InitializingBean, DisposableBean {
     public RpcServer(String serverAddress, String registryAddress) {
         super(serverAddress, registryAddress);

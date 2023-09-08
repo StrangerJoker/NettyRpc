@@ -24,7 +24,7 @@ public class NettyServer extends Server {
     private final String serverAddress;
     // 服务注册
     private final ServiceRegistry serviceRegistry;
-    // 服务key -> 服务Bean
+    // 服务key(rpc接口和版本号) -> 服务Bean:即RPC接口的实现类
     private final Map<String, Object> serviceMap = new HashMap<>();
 
     public NettyServer(String serverAddress, String registryAddress) {

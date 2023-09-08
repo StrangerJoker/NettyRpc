@@ -1,0 +1,11 @@
+
+registry:
+  address: 192.168.102.134:2181
+bind:
+  port: 18887
+server:
+  port: 5002
+  address: localhost
+spring:
+  application:
+    name: service-provider

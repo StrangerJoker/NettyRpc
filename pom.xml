@@ -13,6 +13,9 @@
         <module>netty-rpc-client</module>
         <module>netty-rpc-common</module>
         <module>netty-rpc-test</module>
+        <module>rpc-service-demoA</module>
+        <module>rpc-service-demoB</module>
+        <module>rpc-service-api</module>
     </modules>
 
     <properties>
