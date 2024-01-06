@@ -8,4 +8,4 @@ server:
   address: localhost
 spring:
   application:
-    name: service-provider
+    name: rpc-service-demo-A

@@ -3,9 +3,13 @@ package com.netty.rpc.withsbtest.config;
 import com.netty.rpc.server.RpcServer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 
 @Data
 @NoArgsConstructor
@@ -25,7 +29,10 @@ public class RpcServerConfig {
     private String port;
 
     @Bean
-    public RpcServer rpcServer() {
+    public RpcServer rpcServer() throws UnknownHostException {
+        if (serverAddr.equalsIgnoreCase("localhost")) {
+            serverAddr = Inet4Address.getLocalHost().getHostAddress();
+        }
         return new RpcServer(serverAddr.concat(":").concat(port), registryAddr);
     }
 }

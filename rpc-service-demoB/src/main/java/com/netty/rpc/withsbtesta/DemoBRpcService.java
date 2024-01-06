@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
-public class WithSBTestBApplication {
+public class DemoBRpcService {
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(WithSBTestBApplication.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(DemoBRpcService.class, args);
     }
 }
