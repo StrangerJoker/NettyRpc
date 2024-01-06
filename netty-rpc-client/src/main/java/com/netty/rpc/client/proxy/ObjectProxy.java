@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 
 /**
+ * 发起RPC的代理对象
  * 继承 InvocationHandler实现invoke方法
  * Created by luxiaoxun on 2016-03-16.
  */
@@ -51,7 +52,7 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
                 throw new IllegalStateException(String.valueOf(method));
             }
         }
-
+//        构造 RPC的请求
         RpcRequest request = new RpcRequest();
         request.setRequestId(UUID.randomUUID().toString());
         request.setClassName(method.getDeclaringClass().getName());
@@ -73,6 +74,7 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
 
         String serviceKey = ServiceUtil.makeServiceKey(method.getDeclaringClass().getName(), version);
         RpcClientHandler handler = ConnectionManager.getInstance().chooseHandler(serviceKey);
+        // sendRequest 阻塞方法
         RpcFuture rpcFuture = handler.sendRequest(request);
         return rpcFuture.get();
     }

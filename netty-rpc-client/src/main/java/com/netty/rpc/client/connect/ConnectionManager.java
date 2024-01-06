@@ -35,9 +35,9 @@ public class ConnectionManager {
     private final EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
     private static final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(4, 8,
             600L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1000));
-//    每个 连接的远程服务器 对应的 响应处理器
+    //    每个 连接的远程服务器 对应的 响应处理器
     private final Map<RpcProtocol, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
-//    服务器集合 RpcProtocol 中保存着服务器及可以调用的API
+    //    服务器集合 RpcProtocol 中保存着服务器及可以调用的API
     private final CopyOnWriteArraySet<RpcProtocol> rpcProtocolSet = new CopyOnWriteArraySet<>();
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition connected = lock.newCondition();
@@ -47,6 +47,7 @@ public class ConnectionManager {
 
     private ConnectionManager() {
     }
+
     // 单例
     private static class SingletonHolder {
         private static final ConnectionManager instance = new ConnectionManager();
@@ -58,6 +59,7 @@ public class ConnectionManager {
 
     /**
      * 更新远程服务器节点
+     *
      * @param serviceList 有效的远程服务器
      */
     public void updateConnectedServer(List<RpcProtocol> serviceList) {
@@ -121,35 +123,32 @@ public class ConnectionManager {
             logger.info("New service info, name: {}, version: {}", serviceProtocol.getServiceName(), serviceProtocol.getVersion());
         }
         final InetSocketAddress remotePeer = new InetSocketAddress(rpcProtocol.getHost(), rpcProtocol.getPort());
-        threadPoolExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                Bootstrap b = new Bootstrap();
-                b.group(eventLoopGroup)
-                        .channel(NioSocketChannel.class)
+        threadPoolExecutor.submit(() -> {
+            Bootstrap b = new Bootstrap();
+            b.group(eventLoopGroup)
+                    .channel(NioSocketChannel.class)
 //                        tcp长连接设置
-//                        .option(ChannelOption.SO_KEEPALIVE, true)
+                    .option(ChannelOption.SO_KEEPALIVE, true)
 //                        .option(ChannelOption.TCP_NODELAY, true)
-                        .handler(new RpcClientInitializer());
+                    .handler(new RpcClientInitializer());
 
-                ChannelFuture channelFuture = b.connect(remotePeer);
-                channelFuture.addListener(new ChannelFutureListener() {
+            ChannelFuture channelFuture = b.connect(remotePeer);
+            channelFuture.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(final ChannelFuture channelFuture) throws Exception {
 //                    If this future is already completed, the specified listener is notified immediately
 //                    回调函数，建立连接后就将 rpcProtocol 和 ChannelHandler 记录下来
-                    @Override
-                    public void operationComplete(final ChannelFuture channelFuture) throws Exception {
-                        if (channelFuture.isSuccess()) {
-                            logger.info("Successfully connect to remote server, remote peer = " + remotePeer);
-                            RpcClientHandler handler = channelFuture.channel().pipeline().get(RpcClientHandler.class);
-                            connectedServerNodes.put(rpcProtocol, handler);
-                            handler.setRpcProtocol(rpcProtocol);
-                            signalAvailableHandler();
-                        } else {
-                            logger.error("Can not connect to remote server, remote peer = " + remotePeer);
-                        }
+                    if (channelFuture.isSuccess()) {
+                        logger.info("Successfully connect to remote server, remote peer = " + remotePeer);
+                        RpcClientHandler handler = channelFuture.channel().pipeline().get(RpcClientHandler.class);
+                        connectedServerNodes.put(rpcProtocol, handler);
+                        handler.setRpcProtocol(rpcProtocol);
+                        signalAvailableHandler();
+                    } else {
+                        logger.error("Can not connect to remote server, remote peer = " + remotePeer);
                     }
-                });
-            }
+                }
+            });
         });
     }
 
@@ -173,7 +172,6 @@ public class ConnectionManager {
     }
 
     /**
-     *
      * @param serviceKey 根据 interface 和 version 生成的 serviceKey
      * @return RpcClientHandler
      * @throws Exception e

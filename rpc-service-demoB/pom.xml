@@ -9,8 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.netty.rpc.withsbtesta</groupId>
+    <groupId>com.netty.rpc.demoB</groupId>
     <artifactId>rpc-service-demoB</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
 
     <dependencies>

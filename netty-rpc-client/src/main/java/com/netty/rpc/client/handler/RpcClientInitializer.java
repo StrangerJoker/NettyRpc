@@ -27,7 +27,7 @@ public class RpcClientInitializer extends ChannelInitializer<SocketChannel> {
         cp.addLast(new RpcEncoder(RpcRequest.class, serializer));
         cp.addLast(new LengthFieldBasedFrameDecoder(65536, 0, 4, 0, 0));
         cp.addLast(new RpcDecoder(RpcResponse.class, serializer));
-//        cp.addAfter(new HeartbeatHandler())
+//        cp.addAfter(new HeartbeatHandler()) // 心跳检测的Handler
         cp.addLast(new RpcClientHandler());
     }
 }

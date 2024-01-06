@@ -10,6 +10,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>netty-rpc-test</artifactId>
+    <groupId>netty-rpc-test</groupId>
+    <version>1.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -20,19 +22,19 @@
         </dependency>
 
         <dependency>
-            <groupId>com.netty.rpc</groupId>
+            <groupId>com.netty.rpc.common</groupId>
             <artifactId>netty-rpc-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>com.netty.rpc</groupId>
+            <groupId>com.netty.rpc.server</groupId>
             <artifactId>netty-rpc-server</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>com.netty.rpc</groupId>
+            <groupId>com.netty.rpc.client</groupId>
             <artifactId>netty-rpc-client</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>

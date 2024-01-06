@@ -79,6 +79,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         RpcFuture rpcFuture = new RpcFuture(request);
         pendingRPC.put(request.getRequestId(), rpcFuture);
         try {
+//            发送时阻塞
 //            发送后 等待服务端 返回结果（在channelRead0方法里面设置 RpcFuture 存储的值） 才向下执行
             ChannelFuture channelFuture = channel.writeAndFlush(request).sync();
             if (!channelFuture.isSuccess()) {

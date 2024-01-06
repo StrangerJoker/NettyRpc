@@ -1,5 +1,6 @@
 package com.netty.rpc.client.handler;
 
+import com.netty.rpc.codec.Beat;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -21,10 +22,10 @@ public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
             IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
             if (idleStateEvent.state() == IdleState.WRITER_IDLE) {
                 System.out.println("10秒了，需要发送消息给服务端了" + LocalTime.now());
-                //向服务端送心跳包
-                ByteBuf buffer = getByteBuf(ctx);
+//                ByteBuf buffer = getByteBuf(ctx);
                 //发送心跳消息，并在发送失败时关闭该连接
-                ctx.writeAndFlush(buffer).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+//                ctx.writeAndFlush(buffer).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+                ctx.writeAndFlush(Beat.BEAT_PING).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
             }
         } else {
             super.userEventTriggered(ctx, evt);

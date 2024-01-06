@@ -137,22 +137,18 @@ public class RpcFuture implements Future<Object> {
         private static final long serialVersionUID = 1L;
 
         //future status
-        private final int done = 1;       // 表示Future已经是可以用的状态，使用get获取结果
-        private final int pending = 0;    // 表示Future是不可用的状态，等待state=1
+        private final int done = 1;
+        private final int pending = 0;
 
         @Override
         protected boolean tryAcquire(int arg) {
-            return getState() == done; // state=0才能拿到锁
+            return getState() == done; // 独占式 获取同步状态
         }
 
         @Override
         protected boolean tryRelease(int arg) {
             if (getState() == pending) {
-                if (compareAndSetState(pending, done)) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return compareAndSetState(pending, done);
             } else {
                 return true;
             }

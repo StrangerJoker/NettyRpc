@@ -18,8 +18,11 @@ public class CuratorClient {
     private final CuratorFramework client;
 
     public CuratorClient(String connectString, String namespace, int sessionTimeout, int connectionTimeout) {
-        client = CuratorFrameworkFactory.builder().namespace(namespace).connectString(connectString)
-                .sessionTimeoutMs(sessionTimeout).connectionTimeoutMs(connectionTimeout)
+        client = CuratorFrameworkFactory.builder()
+                .namespace(namespace)
+                .connectString(connectString)
+                .sessionTimeoutMs(sessionTimeout)
+                .connectionTimeoutMs(connectionTimeout)
                 .retryPolicy(new ExponentialBackoffRetry(1000, 10))
                 .build();
         client.start();
