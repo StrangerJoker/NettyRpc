@@ -3,6 +3,9 @@ package com.app.test;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
+
 public class TestA {
     @Test
     public void test() {
@@ -15,5 +18,10 @@ public class TestA {
         System.out.println(str1 == str2);
         System.out.println(str3 == str4);
         System.out.println(str5 == str6);
+    }
+
+    @Test
+    public void getIp() throws UnknownHostException {
+        System.out.println(Inet4Address.getLocalHost().getHostAddress());
     }
 }
